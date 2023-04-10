@@ -154,7 +154,7 @@ def laplacian_variance(path):
 
 def IOU():
 
-    # This function read the json file that stored the data in the localizer and return 
+    # This function read the json file that stored the data in the localizer and return
     # a flat IOU score list
     image_sizes = get_image_sizes(Images_path)
     ground_truth = read_xml()
@@ -166,7 +166,7 @@ def IOU():
 
 
 def linear_regression(blur_list, iou_scores):
-    
+
     # This function takes in two lists: blur list, iou scores list and form a linear regression
     # model
     X = np.array(blur_list).reshape(-1, 1)
@@ -198,7 +198,7 @@ def hist(list1, list2):
 
     bin_width = 100
     plt.hist(histogram1, bins=range(int(min(histogram1)), int(max(histogram1)) + bin_width, bin_width), alpha=0.5, label='True Positive')
-    plt.hist(histogram2, bins=range(int(min(histogram2)), int(max(histogram2)) + bin_width, bin_width), alpha=0.5, label='False Positive')
+    plt.hist(histogram2, bins=range(int(min(histogram2)), int(max(histogram2)) + bin_width, bin_width), alpha=0.5, label='False Negative/Miss')
 
     plt.xlabel('Blurriness')
     plt.ylabel('Frequency')
