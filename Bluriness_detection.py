@@ -13,19 +13,32 @@ import json
 from IOU_score_calculation import calculate_iou_scores_v2
 from IOU_score_calculation import get_image_sizes
 
+# update the path below with the path of images.
+Images_path = "C:/Users/17654/Desktop/Images"
+
+
+# update the path below with the path of the labeled XML files.
+XML_Folder_path = "C:/Users/17654/Desktop/labeled files"
+
+# Set up the destination directory where you intend to store the cropped images,
+# and update the path below with the path of the newly created folder.
+Cropped_Img_Path = "C:/Users/17654/Desktop/Cropped Image"
+
+# Set up the destination directory where you intend to store the resized images,
+# and update the path below with the path of the newly created folder.
+Resized_Img_path = "C:/Users/17654/Desktop/resized img"
+
 
 def read_xml():
     # read xml files and extract the coodinates of each bonding boxes
     # and return a dictionary with keys correspond to image name and
     # values correspnd to coodinates
 
-    # put the path of xml files here
-    path = "C:/Users/17654/Desktop/labeled files"
     dict = {}
     count = 0
-    for file in os.listdir(path):
+    for file in os.listdir(XML_Folder_path):
         if file.endswith('.xml'):
-            tree = ET.parse(os.path.join(path,file))
+            tree = ET.parse(os.path.join(XML_Folder_path,file))
             root = tree.getroot()
             temp = []
             filename = os.path.splitext(file)[0]+'.jpg'
@@ -66,16 +79,20 @@ def save_crop_img(new_dir):
     # This function first call the read_xml() funciton to get the dictionary,
     # and then save each cropped image in new_dir
     temp = read_xml()
-    # put path of the image folder here
-    image_dir = "C:/Users/17654/Desktop/Images to Label"
+
     for image_name, coords in temp.items():
-        image_path = os.path.join(image_dir, image_name)
+        image_path = os.path.join(Images_path, image_name)
         crop_img(coords, image_path, new_dir)
 
 #replace this with the new destination folder path you want to save
-save_crop_img("C:/Users/17654/Desktop/Cropped Image")
+save_crop_img(Cropped_Img_Path)
 
 def coords_mids():
+
+    # This function reads the coordinates from the XML files using the read_xml()
+    # function and calculates the average of all the coordinates. It returns the
+    # calculated average as a list of four values.
+
     dict11 = read_xml()
     combined_coords = []
     for coords in dict11.values():
@@ -85,17 +102,24 @@ def coords_mids():
     return average
 
 def resize_img():
-    path1 = glob.glob("C:/Users/17654/Desktop/Cropped Image/*.jpg")
+
+    # This function resizes the images to their average width and height
+    # using seam carving, so that there're no external affect influencing
+    # blurriness measurement
+
+    path1 = glob.glob(Cropped_Img_Path + "/*.jpg")
     average = coords_mids()
     width = average[2] - average[0]
     height = average[3] - average[1]
-    new_img_path = "C:/Users/17654/Desktop/resized img"
+
+
     for img_path in path1:
         img = cv2.imread(img_path)
         resized_img = transform.resize(img, (height, width), preserve_range=True)
         filename = os.path.basename(img_path)
-        io.imsave(f'{new_img_path}/{filename}', resized_img.astype(img.dtype))
+        io.imsave(f'{Resized_Img_path}/{filename}', resized_img.astype(img.dtype))
 
+# Perform the resize function
 resize_img()
 
 def get_name():
@@ -103,8 +127,7 @@ def get_name():
     # A function that get the name of every name of file in
     # the desination folder
 
-    path = "C:/Users/17654/Desktop/resized img"
-    file_name = os.listdir(path)
+    file_name = os.listdir(Resized_Img_path)
 
     return file_name
 
@@ -113,7 +136,7 @@ def read_img():
     # A function that read every image in the destination folder
     # and return a list for future data processing
 
-    path = glob.glob("C:/Users/17654/Desktop/resized img/*.jpg")
+    path = glob.glob(Resized_Img_path + "/*.jpg")
     img_list = []
     for img in path:
         temp = cv2.imread(img)
@@ -130,8 +153,10 @@ def laplacian_variance(path):
     return lp_var
 
 def IOU():
-    image_folder = "C:/Users/17654/Desktop/Images to Label"
-    image_sizes = get_image_sizes(image_folder)
+
+    # This function read the json file that stored the data in the localizer and return 
+    # a flat IOU score list
+    image_sizes = get_image_sizes(Images_path)
     ground_truth = read_xml()
     json_file_path = "C:/Users/17654/PycharmProjects/Image analysis/venv/l_dict.json"
     iou_scores = calculate_iou_scores_v2(json_file_path, ground_truth, image_sizes)
@@ -140,13 +165,10 @@ def IOU():
     return (flat_IOU_list)
 
 
-def scale_list(my_list):
-    min_value = min(my_list)
-    max_value = max(my_list)
-    scaled_list = [(x - min_value) / (max_value - min_value) * 1 for x in my_list]
-    return scaled_list
-
 def linear_regression(blur_list, iou_scores):
+    
+    # This function takes in two lists: blur list, iou scores list and form a linear regression
+    # model
     X = np.array(blur_list).reshape(-1, 1)
     y = np.array(iou_scores).reshape(-1, 1)
     model = LinearRegression()
