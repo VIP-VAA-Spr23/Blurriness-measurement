@@ -133,8 +133,8 @@ def get_name():
 
 def read_img():
 
-    # A function that read every image in the destination folder
-    # and return a list for future data processing
+    # This function reads every image in the destination folder
+    # and returns a list for future data processing
 
     path = glob.glob(Resized_Img_path + "/*.jpg")
     img_list = []
