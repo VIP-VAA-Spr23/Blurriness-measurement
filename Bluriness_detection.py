@@ -133,8 +133,8 @@ def get_name():
 
 def read_img():
 
-    # This function reads every image in the destination folder
-    # and returns a list for future data processing
+    # A function that read every image in the destination folder
+    # and return a list for future data processing
 
     path = glob.glob(Resized_Img_path + "/*.jpg")
     img_list = []
@@ -188,6 +188,8 @@ def linear_regression(blur_list, iou_scores):
     plt.show()
 
 def hist(list1, list2):
+
+    #This function takes in two lists, and form the histogram to visualize the results.
     histogram1 = []
     histogram2 = []
     for val1, val2 in zip(list1, list2):
