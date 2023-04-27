@@ -35,7 +35,7 @@ This repository aims to perform image blurriness on a set of images, and calcula
    - Place all the images in a single folder.
    - Label your images using the [LabelImg tool](https://github.com/pranjalAI/labelImg) or a similar tool. Place all the XML files containing the ground truth labels in another folder.
    - Create two separate folders: one for saving cropped images and another for saving resized images.
-3. Update the paths in the script for the following:
+3. Update the paths in the `IOU_score_calculation.py` and `Bluriness_detection.py` script for the following:
    - Images folder
    - XML files folder
    - Cropped images folder
